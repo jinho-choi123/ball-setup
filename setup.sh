@@ -26,6 +26,12 @@ trap 'error "Failed at line $LINENO"' ERR
 
 command_exists() { command -v "$1" &>/dev/null; }
 
+# Use sudo only if not root
+SUDO=""
+if [[ "$(id -u)" -ne 0 ]]; then
+    SUDO="sudo"
+fi
+
 OS=""
 
 PKG_INDEX_UPDATED=false
@@ -34,11 +40,11 @@ pkg_update_once() {
     case "$OS" in
         ubuntu|debian)
             info "Updating package index..."
-            sudo apt-get update -y
+            $SUDO apt-get update -y
             ;;
         rocky)
             info "Updating package index..."
-            sudo dnf makecache -y
+            $SUDO dnf makecache -y
             ;;
         macos) ;;
     esac
@@ -66,10 +72,10 @@ pkg_install() {
     pkg_update_once
     case "$OS" in
         ubuntu|debian)
-            sudo apt-get install -y "$@"
+            $SUDO apt-get install -y "$@"
             ;;
         rocky)
-            sudo dnf install -y "$@"
+            $SUDO dnf install -y "$@"
             ;;
         macos)
             if ! command_exists brew; then
@@ -94,7 +100,7 @@ install_zsh() {
     # Change default shell to zsh
     if [[ "$SHELL" != *"zsh"* ]]; then
         info "Changing default shell to zsh..."
-        sudo chsh -s "$(which zsh)" "$(whoami)" 2>/dev/null || warn "Could not change shell — run manually: chsh -s \$(which zsh)"
+        $SUDO chsh -s "$(which zsh)" "$(whoami)" 2>/dev/null || warn "Could not change shell — run manually: chsh -s \$(which zsh)"
     fi
     success "zsh installed"
 }
