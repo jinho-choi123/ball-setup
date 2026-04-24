@@ -50,8 +50,8 @@ detect_os() {
         case "$ID" in
             ubuntu) OS="ubuntu" ;;
             debian) OS="debian" ;;
-            rocky) OS="rocky" ;;
-            *) error "Unsupported OS: $ID"; exit 1 ;;
+            rocky|rocky-linux) OS="rocky" ;;
+            *) error "Unsupported OS: $ID (from /etc/os-release)"; exit 1 ;;
         esac
     else
         error "Unsupported OS: cannot detect"; exit 1
