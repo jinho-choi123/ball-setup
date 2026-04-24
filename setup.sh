@@ -162,6 +162,25 @@ install_claude_code() {
     success "API key saved to .zshrc"
 }
 
+install_plugins() {
+    info "Setting up Claude Code plugins..."
+
+    # Register custom marketplaces
+    info "Registering marketplaces..."
+    claude marketplace add omc --git https://github.com/Yeachan-Heo/oh-my-claudecode.git 2>/dev/null || true
+    claude marketplace add thedotmack --github thedotmack/claude-mem 2>/dev/null || true
+    claude marketplace add caveman --github JuliusBrussee/caveman 2>/dev/null || true
+    success "Marketplaces registered"
+
+    # Install plugins
+    info "Installing plugins..."
+    claude plugin install oh-my-claudecode --marketplace omc 2>/dev/null || true
+    claude plugin install claude-mem --marketplace thedotmack 2>/dev/null || true
+    claude plugin install caveman --marketplace caveman 2>/dev/null || true
+    claude plugin install superpowers --marketplace claude-plugins-official 2>/dev/null || true
+    success "Plugins installed"
+}
+
 main() {
     info "Starting remote server setup..."
     detect_os
@@ -169,6 +188,7 @@ main() {
     install_ohmyzsh
     install_tools
     install_claude_code
+    install_plugins
     # remaining calls added in later tasks
     success "Setup complete! Restart shell or run: exec zsh"
 }
