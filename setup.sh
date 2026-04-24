@@ -111,7 +111,11 @@ install_ohmyzsh() {
         return 0
     fi
     info "Installing oh-my-zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    local omz_installer
+    omz_installer=$(mktemp)
+    curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o "$omz_installer"
+    RUNZSH=no sh "$omz_installer" --unattended
+    rm -f "$omz_installer"
     success "oh-my-zsh installed"
 }
 
@@ -142,7 +146,11 @@ install_tools() {
         success "uv already installed"
     else
         info "Installing uv..."
-        curl -LsSf https://astral.sh/uv/install.sh | sh
+        local uv_installer
+        uv_installer=$(mktemp)
+        curl -LsSf https://astral.sh/uv/install.sh -o "$uv_installer"
+        sh "$uv_installer"
+        rm -f "$uv_installer"
     fi
 
     # bun
@@ -150,7 +158,11 @@ install_tools() {
         success "bun already installed"
     else
         info "Installing bun..."
-        curl -fsSL https://bun.sh/install | bash
+        local bun_installer
+        bun_installer=$(mktemp)
+        curl -fsSL https://bun.sh/install -o "$bun_installer"
+        bash "$bun_installer"
+        rm -f "$bun_installer"
     fi
 
     success "Dev tools ready"
