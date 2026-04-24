@@ -228,7 +228,7 @@ main() {
     install_claude_code
     install_plugins
     install_skills
-    # remaining calls added in later tasks
+    echo ""
     success "Setup complete! Restart shell or run: exec zsh"
 }
 
