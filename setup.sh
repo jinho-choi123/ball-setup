@@ -24,14 +24,46 @@ trap 'error "Failed at line $LINENO"' ERR
 command_exists() { command -v "$1" &>/dev/null; }
 
 OS=""
+
+APT_UPDATED=false
+apt_update_once() {
+    if [[ "$APT_UPDATED" == false && "$OS" != "macos" ]]; then
+        info "Updating package index..."
+        sudo apt-get update -y
+        APT_UPDATED=true
+    fi
+}
+
 detect_os() {
-    # placeholder — implemented in Task 2
-    :
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        OS="macos"
+    elif [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        case "$ID" in
+            ubuntu) OS="ubuntu" ;;
+            debian) OS="debian" ;;
+            *) error "Unsupported OS: $ID"; exit 1 ;;
+        esac
+    else
+        error "Unsupported OS: cannot detect"; exit 1
+    fi
+    info "Detected OS: $OS"
 }
 
 pkg_install() {
-    # placeholder — implemented in Task 2
-    :
+    case "$OS" in
+        ubuntu|debian)
+            apt_update_once
+            sudo apt-get install -y "$@"
+            ;;
+        macos)
+            if ! command_exists brew; then
+                error "Homebrew not found. Install from https://brew.sh first."
+                exit 1
+            fi
+            brew install "$@"
+            ;;
+    esac
 }
 
 main() {
