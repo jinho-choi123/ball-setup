@@ -167,24 +167,24 @@ install_plugins() {
 
     # Register custom marketplaces
     info "Registering marketplaces..."
-    claude marketplace add omc --git https://github.com/Yeachan-Heo/oh-my-claudecode.git 2>/dev/null || true
-    claude marketplace add thedotmack --github thedotmack/claude-mem 2>/dev/null || true
-    claude marketplace add caveman --github JuliusBrussee/caveman 2>/dev/null || true
+    claude plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode.git 2>/dev/null || true
+    claude plugin marketplace add thedotmack/claude-mem 2>/dev/null || true
+    claude plugin marketplace add JuliusBrussee/caveman 2>/dev/null || true
     success "Marketplaces registered"
 
     # Install plugins
     info "Installing plugins..."
-    claude plugin install oh-my-claudecode --marketplace omc 2>/dev/null || true
-    claude plugin install claude-mem --marketplace thedotmack 2>/dev/null || true
-    claude plugin install caveman --marketplace caveman 2>/dev/null || true
-    claude plugin install superpowers --marketplace claude-plugins-official 2>/dev/null || true
+    claude plugin install oh-my-claudecode@omc 2>/dev/null || true
+    claude plugin install claude-mem@thedotmack 2>/dev/null || true
+    claude plugin install caveman@caveman 2>/dev/null || true
+    claude plugin install superpowers@claude-plugins-official 2>/dev/null || true
     success "Plugins installed"
 }
 
 install_skills() {
     info "Installing skills..."
 
-    # Public skills via npx skillsadd
+    # Public skills via npx skills add
     local repos=(
         "shubhamsaboo/awesome-llm-apps"
         "juliusbrussee/caveman"
@@ -198,7 +198,7 @@ install_skills() {
 
     for repo in "${repos[@]}"; do
         info "Installing skills from $repo..."
-        npx skillsadd "$repo" || warn "Failed to install from $repo"
+        npx skills add "$repo" -g -y || warn "Failed to install from $repo"
     done
     success "Public skills installed"
 
