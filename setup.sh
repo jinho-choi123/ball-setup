@@ -66,9 +66,39 @@ pkg_install() {
     esac
 }
 
+install_zsh() {
+    if command_exists zsh; then
+        success "zsh already installed"
+        return 0
+    fi
+    info "Installing zsh..."
+    case "$OS" in
+        ubuntu|debian) pkg_install zsh ;;
+        macos) success "zsh is default on macOS"; return 0 ;;
+    esac
+    # Change default shell to zsh
+    if [[ "$SHELL" != *"zsh"* ]]; then
+        info "Changing default shell to zsh..."
+        sudo chsh -s "$(which zsh)" "$(whoami)" 2>/dev/null || warn "Could not change shell — run manually: chsh -s \$(which zsh)"
+    fi
+    success "zsh installed"
+}
+
+install_ohmyzsh() {
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+        success "oh-my-zsh already installed"
+        return 0
+    fi
+    info "Installing oh-my-zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    success "oh-my-zsh installed"
+}
+
 main() {
     info "Starting remote server setup..."
     detect_os
+    install_zsh
+    install_ohmyzsh
     # remaining calls added in later tasks
     success "Setup complete! Restart shell or run: exec zsh"
 }
