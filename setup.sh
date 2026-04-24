@@ -94,11 +94,53 @@ install_ohmyzsh() {
     success "oh-my-zsh installed"
 }
 
+install_tools() {
+    info "Installing dev tools..."
+
+    # git
+    if command_exists git; then
+        success "git already installed"
+    else
+        info "Installing git..."
+        pkg_install git
+    fi
+
+    # unzip
+    if command_exists unzip; then
+        success "unzip already installed"
+    else
+        info "Installing unzip..."
+        case "$OS" in
+            ubuntu|debian) pkg_install unzip ;;
+            macos) success "unzip built-in on macOS" ;;
+        esac
+    fi
+
+    # uv
+    if command_exists uv; then
+        success "uv already installed"
+    else
+        info "Installing uv..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    fi
+
+    # bun
+    if command_exists bun; then
+        success "bun already installed"
+    else
+        info "Installing bun..."
+        curl -fsSL https://bun.sh/install | bash
+    fi
+
+    success "Dev tools ready"
+}
+
 main() {
     info "Starting remote server setup..."
     detect_os
     install_zsh
     install_ohmyzsh
+    install_tools
     # remaining calls added in later tasks
     success "Setup complete! Restart shell or run: exec zsh"
 }
