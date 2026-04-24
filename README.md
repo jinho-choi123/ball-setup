@@ -11,7 +11,7 @@ One-shot script to provision a remote server with zsh, dev tools, and Claude Cod
 ## Usage
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<owner>/remote-setup/main/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jinho-choi123/ball-setup/main/setup.sh | bash
 ```
 
 ## What it installs

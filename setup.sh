@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ──────────────────────────────────────────────
 # Remote Server Setup Script
-# Usage: curl -fsSL https://raw.githubusercontent.com/<owner>/remote-setup/main/setup.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/jinho-choi123/ball-setup/main/setup.sh | bash
 # Supported OS: Ubuntu, Debian, macOS
 # ──────────────────────────────────────────────
 
@@ -203,7 +203,7 @@ install_skills() {
     success "Public skills installed"
 
     # Custom skills from this repo
-    SCRIPT_REPO="https://github.com/<owner>/remote-setup.git"
+    SCRIPT_REPO="https://github.com/jinho-choi123/ball-setup.git"
     TMPDIR=$(mktemp -d)
     info "Cloning custom skills..."
     git clone --depth 1 "$SCRIPT_REPO" "$TMPDIR" 2>/dev/null
