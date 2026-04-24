@@ -7,11 +7,14 @@ set -euo pipefail
 # Supported OS: Ubuntu, Debian, Rocky Linux, macOS
 # ──────────────────────────────────────────────
 
-# Colors (disabled if not a terminal)
-if [[ -t 1 ]]; then
-    RED=$(tput setaf 1) GREEN=$(tput setaf 2) YELLOW=$(tput setaf 3) BLUE=$(tput setaf 4) RESET=$(tput sgr0)
-else
-    RED="" GREEN="" YELLOW="" BLUE="" RESET=""
+# Colors (disabled if not a terminal or tput unavailable)
+RED="" GREEN="" YELLOW="" BLUE="" RESET=""
+if [[ -t 1 ]] && command -v tput &>/dev/null && tput colors &>/dev/null; then
+    RED=$(tput setaf 1 2>/dev/null) || true
+    GREEN=$(tput setaf 2 2>/dev/null) || true
+    YELLOW=$(tput setaf 3 2>/dev/null) || true
+    BLUE=$(tput setaf 4 2>/dev/null) || true
+    RESET=$(tput sgr0 2>/dev/null) || true
 fi
 
 info()    { echo "${BLUE}▸${RESET} $*"; }
@@ -163,7 +166,7 @@ install_claude_code() {
     fi
 
     echo ""
-    read -sp "Enter ANTHROPIC_API_KEY: " api_key
+    read -sp "Enter ANTHROPIC_API_KEY: " api_key < /dev/tty
     echo ""
     if [[ -z "$api_key" ]]; then
         warn "No API key provided — set ANTHROPIC_API_KEY manually later"
