@@ -135,12 +135,40 @@ install_tools() {
     success "Dev tools ready"
 }
 
+install_claude_code() {
+    if command_exists claude; then
+        success "Claude Code already installed"
+    else
+        info "Installing Claude Code..."
+        bun install -g @anthropic-ai/claude-code
+        success "Claude Code installed"
+    fi
+
+    # API key setup
+    if grep -q "ANTHROPIC_API_KEY" "$HOME/.zshrc" 2>/dev/null; then
+        success "ANTHROPIC_API_KEY already in .zshrc"
+        return 0
+    fi
+
+    echo ""
+    read -sp "Enter ANTHROPIC_API_KEY: " api_key
+    echo ""
+    if [[ -z "$api_key" ]]; then
+        warn "No API key provided — set ANTHROPIC_API_KEY manually later"
+        return 0
+    fi
+    echo "export ANTHROPIC_API_KEY=\"$api_key\"" >> "$HOME/.zshrc"
+    export ANTHROPIC_API_KEY="$api_key"
+    success "API key saved to .zshrc"
+}
+
 main() {
     info "Starting remote server setup..."
     detect_os
     install_zsh
     install_ohmyzsh
     install_tools
+    install_claude_code
     # remaining calls added in later tasks
     success "Setup complete! Restart shell or run: exec zsh"
 }
