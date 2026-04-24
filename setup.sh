@@ -181,6 +181,44 @@ install_plugins() {
     success "Plugins installed"
 }
 
+install_skills() {
+    info "Installing skills..."
+
+    # Public skills via npx skillsadd
+    local repos=(
+        "shubhamsaboo/awesome-llm-apps"
+        "juliusbrussee/caveman"
+        "github/awesome-copilot"
+        "mattpocock/skills"
+        "tavily-ai/skills"
+        "vercel-labs/skills"
+        "anthropics/skills"
+        "Astro-Han/karpathy-llm-wiki"
+    )
+
+    for repo in "${repos[@]}"; do
+        info "Installing skills from $repo..."
+        npx skillsadd "$repo" || warn "Failed to install from $repo"
+    done
+    success "Public skills installed"
+
+    # Custom skills from this repo
+    SCRIPT_REPO="https://github.com/<owner>/remote-setup.git"
+    TMPDIR=$(mktemp -d)
+    info "Cloning custom skills..."
+    git clone --depth 1 "$SCRIPT_REPO" "$TMPDIR" 2>/dev/null
+
+    if [[ -d "$TMPDIR/custom-skills" ]]; then
+        mkdir -p "$HOME/.agents/skills"
+        cp -r "$TMPDIR/custom-skills/"* "$HOME/.agents/skills/"
+        success "Custom skills installed"
+    else
+        warn "No custom-skills directory found in repo"
+    fi
+
+    rm -rf "$TMPDIR"
+}
+
 main() {
     info "Starting remote server setup..."
     detect_os
@@ -189,6 +227,7 @@ main() {
     install_tools
     install_claude_code
     install_plugins
+    install_skills
     # remaining calls added in later tasks
     success "Setup complete! Restart shell or run: exec zsh"
 }
