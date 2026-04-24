@@ -6,6 +6,7 @@ One-shot script to provision a remote server with zsh, dev tools, and Claude Cod
 
 - Ubuntu
 - Debian
+- Rocky Linux
 - macOS
 
 ## Usage

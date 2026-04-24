@@ -4,7 +4,7 @@ set -euo pipefail
 # ──────────────────────────────────────────────
 # Remote Server Setup Script
 # Usage: curl -fsSL https://raw.githubusercontent.com/jinho-choi123/ball-setup/main/setup.sh | bash
-# Supported OS: Ubuntu, Debian, macOS
+# Supported OS: Ubuntu, Debian, Rocky Linux, macOS
 # ──────────────────────────────────────────────
 
 # Colors (disabled if not a terminal)
@@ -25,13 +25,21 @@ command_exists() { command -v "$1" &>/dev/null; }
 
 OS=""
 
-APT_UPDATED=false
-apt_update_once() {
-    if [[ "$APT_UPDATED" == false && "$OS" != "macos" ]]; then
-        info "Updating package index..."
-        sudo apt-get update -y
-        APT_UPDATED=true
-    fi
+PKG_INDEX_UPDATED=false
+pkg_update_once() {
+    if [[ "$PKG_INDEX_UPDATED" == true ]]; then return 0; fi
+    case "$OS" in
+        ubuntu|debian)
+            info "Updating package index..."
+            sudo apt-get update -y
+            ;;
+        rocky)
+            info "Updating package index..."
+            sudo dnf makecache -y
+            ;;
+        macos) ;;
+    esac
+    PKG_INDEX_UPDATED=true
 }
 
 detect_os() {
@@ -42,6 +50,7 @@ detect_os() {
         case "$ID" in
             ubuntu) OS="ubuntu" ;;
             debian) OS="debian" ;;
+            rocky) OS="rocky" ;;
             *) error "Unsupported OS: $ID"; exit 1 ;;
         esac
     else
@@ -51,10 +60,13 @@ detect_os() {
 }
 
 pkg_install() {
+    pkg_update_once
     case "$OS" in
         ubuntu|debian)
-            apt_update_once
             sudo apt-get install -y "$@"
+            ;;
+        rocky)
+            sudo dnf install -y "$@"
             ;;
         macos)
             if ! command_exists brew; then
@@ -73,7 +85,7 @@ install_zsh() {
     fi
     info "Installing zsh..."
     case "$OS" in
-        ubuntu|debian) pkg_install zsh ;;
+        ubuntu|debian|rocky) pkg_install zsh ;;
         macos) success "zsh is default on macOS"; return 0 ;;
     esac
     # Change default shell to zsh
@@ -111,7 +123,7 @@ install_tools() {
     else
         info "Installing unzip..."
         case "$OS" in
-            ubuntu|debian) pkg_install unzip ;;
+            ubuntu|debian|rocky) pkg_install unzip ;;
             macos) success "unzip built-in on macOS" ;;
         esac
     fi
