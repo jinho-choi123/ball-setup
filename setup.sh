@@ -177,22 +177,9 @@ install_claude_code() {
         success "Claude Code installed"
     fi
 
-    # API key setup
-    if grep -q "ANTHROPIC_API_KEY" "$HOME/.zshrc" 2>/dev/null; then
-        success "ANTHROPIC_API_KEY already in .zshrc"
-        return 0
-    fi
-
-    echo ""
-    read -sp "Enter ANTHROPIC_API_KEY: " api_key < /dev/tty
-    echo ""
-    if [[ -z "$api_key" ]]; then
-        warn "No API key provided — set ANTHROPIC_API_KEY manually later"
-        return 0
-    fi
-    echo "export ANTHROPIC_API_KEY=\"$api_key\"" >> "$HOME/.zshrc"
-    export ANTHROPIC_API_KEY="$api_key"
-    success "API key saved to .zshrc"
+    # Login to Claude
+    info "Logging in to Claude Code..."
+    claude login < /dev/tty
 }
 
 install_plugins() {
@@ -217,7 +204,7 @@ install_plugins() {
 install_skills() {
     info "Installing skills..."
 
-    # Public skills via npx skills add
+    # Public skills via bunx skills add
     local repos=(
         "shubhamsaboo/awesome-llm-apps"
         "juliusbrussee/caveman"
@@ -231,7 +218,7 @@ install_skills() {
 
     for repo in "${repos[@]}"; do
         info "Installing skills from $repo..."
-        npx skills add "$repo" -g -y || warn "Failed to install from $repo"
+        bunx skills add "$repo" -g -y || warn "Failed to install from $repo"
     done
     success "Public skills installed"
 

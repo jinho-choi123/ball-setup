@@ -24,6 +24,6 @@ curl -fsSL https://raw.githubusercontent.com/jinho-choi123/ball-setup/main/setup
 5. Skills: academic-researcher, caveman, gh-cli, grill-me, tavily-*, find-skills, pdf, karpathy-llm-wiki
 6. Custom skills: linear-manager
 
-## API Key
+## Authentication
 
-Script will prompt for `ANTHROPIC_API_KEY` interactively and save to `~/.zshrc`.
+Script runs `claude login` interactively for authentication.
