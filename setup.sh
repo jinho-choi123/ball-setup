@@ -119,6 +119,68 @@ install_ohmyzsh() {
     success "oh-my-zsh installed"
 }
 
+install_zsh_plugins() {
+    local zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+    # zsh-autosuggestions
+    if [[ -d "$zsh_custom/plugins/zsh-autosuggestions" ]]; then
+        success "zsh-autosuggestions already installed"
+    else
+        info "Installing zsh-autosuggestions..."
+        git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom/plugins/zsh-autosuggestions"
+    fi
+
+    # zsh-syntax-highlighting
+    if [[ -d "$zsh_custom/plugins/zsh-syntax-highlighting" ]]; then
+        success "zsh-syntax-highlighting already installed"
+    else
+        info "Installing zsh-syntax-highlighting..."
+        git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting "$zsh_custom/plugins/zsh-syntax-highlighting"
+    fi
+
+    # zsh-completions
+    if [[ -d "$zsh_custom/plugins/zsh-completions" ]]; then
+        success "zsh-completions already installed"
+    else
+        info "Installing zsh-completions..."
+        git clone --depth 1 https://github.com/zsh-users/zsh-completions "$zsh_custom/plugins/zsh-completions"
+    fi
+
+    # Update plugins list in .zshrc
+    local zshrc="$HOME/.zshrc"
+    if [[ -f "$zshrc" ]] && ! grep -q "zsh-autosuggestions" "$zshrc"; then
+        info "Configuring zsh plugins in .zshrc..."
+        local tmp
+        tmp=$(mktemp)
+        sed 's/^plugins=(.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions)/' "$zshrc" > "$tmp"
+        mv "$tmp" "$zshrc"
+        success "zsh plugins configured"
+    else
+        success "zsh plugins already configured"
+    fi
+}
+
+configure_shell_env() {
+    local zshrc="$HOME/.zshrc"
+    local marker="# ball-setup managed"
+
+    if grep -q "$marker" "$zshrc" 2>/dev/null; then
+        success "Shell environment already configured"
+        return 0
+    fi
+
+    info "Configuring shell environment (PATH, fnm)..."
+    cat >> "$zshrc" << 'SHELL_EOF'
+
+# ball-setup managed
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$HOME/.local/share/fnm:$PATH"
+eval "$(fnm env)"
+SHELL_EOF
+    success "Shell environment configured"
+}
+
 install_tools() {
     info "Installing dev tools..."
 
@@ -163,6 +225,195 @@ install_tools() {
         curl -fsSL https://bun.sh/install -o "$bun_installer"
         bash "$bun_installer"
         rm -f "$bun_installer"
+    fi
+
+    # fnm (Fast Node Manager)
+    if command_exists fnm; then
+        success "fnm already installed"
+    else
+        info "Installing fnm..."
+        local fnm_installer
+        fnm_installer=$(mktemp)
+        curl -fsSL https://fnm.vercel.app/install -o "$fnm_installer"
+        bash "$fnm_installer" --skip-shell
+        rm -f "$fnm_installer"
+        export PATH="$HOME/.local/share/fnm:$PATH"
+        eval "$(fnm env)"
+    fi
+
+    # Node.js LTS via fnm
+    if command_exists node; then
+        success "node already installed ($(node -v))"
+    else
+        info "Installing Node.js LTS via fnm..."
+        fnm install --lts
+        fnm default lts-latest
+        fnm use lts-latest
+        success "Node.js $(node -v) installed"
+    fi
+
+    # curl
+    if command_exists curl; then
+        success "curl already installed"
+    else
+        info "Installing curl..."
+        pkg_install curl
+    fi
+
+    # ca-certificates
+    case "$OS" in
+        ubuntu|debian|rocky)
+            info "Ensuring ca-certificates..."
+            pkg_install ca-certificates
+            ;;
+        macos) ;;
+    esac
+
+    # build tools (gcc, g++, make, etc.)
+    case "$OS" in
+        ubuntu|debian)
+            if dpkg -s build-essential &>/dev/null 2>&1; then
+                success "build-essential already installed"
+            else
+                info "Installing build-essential..."
+                pkg_install build-essential
+            fi
+            ;;
+        rocky)
+            if command_exists gcc && command_exists make; then
+                success "Development tools already installed"
+            else
+                info "Installing development tools..."
+                $SUDO dnf groupinstall -y "Development Tools"
+            fi
+            ;;
+        macos)
+            if xcode-select -p &>/dev/null; then
+                success "Xcode CLI tools already installed"
+            else
+                info "Installing Xcode CLI tools..."
+                xcode-select --install 2>/dev/null || warn "Run 'xcode-select --install' manually"
+            fi
+            ;;
+    esac
+
+    # tmux
+    if command_exists tmux; then
+        success "tmux already installed"
+    else
+        info "Installing tmux..."
+        pkg_install tmux
+    fi
+
+    # jq
+    if command_exists jq; then
+        success "jq already installed"
+    else
+        info "Installing jq..."
+        pkg_install jq
+    fi
+
+    # ripgrep
+    if command_exists rg; then
+        success "ripgrep already installed"
+    else
+        info "Installing ripgrep..."
+        pkg_install ripgrep
+    fi
+
+    # fd
+    if command_exists fd || command_exists fdfind; then
+        success "fd already installed"
+    else
+        info "Installing fd..."
+        case "$OS" in
+            ubuntu|debian)
+                pkg_install fd-find
+                $SUDO ln -sf "$(which fdfind)" /usr/local/bin/fd
+                ;;
+            rocky) pkg_install fd-find ;;
+            macos) pkg_install fd ;;
+        esac
+    fi
+
+    # fzf
+    if command_exists fzf; then
+        success "fzf already installed"
+    else
+        info "Installing fzf..."
+        pkg_install fzf
+    fi
+
+    # htop
+    if command_exists htop; then
+        success "htop already installed"
+    else
+        info "Installing htop..."
+        pkg_install htop
+    fi
+
+    # make (usually included in build tools, explicit check)
+    if command_exists make; then
+        success "make already installed"
+    else
+        info "Installing make..."
+        pkg_install make
+    fi
+
+    # GitHub CLI (gh)
+    if command_exists gh; then
+        success "gh already installed"
+    else
+        info "Installing GitHub CLI..."
+        case "$OS" in
+            ubuntu|debian)
+                curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                    | $SUDO tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null
+                echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+                    | $SUDO tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+                PKG_INDEX_UPDATED=false
+                pkg_install gh
+                ;;
+            rocky)
+                $SUDO dnf install -y 'dnf-command(config-manager)' 2>/dev/null || true
+                $SUDO dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+                $SUDO dnf install -y gh
+                ;;
+            macos)
+                pkg_install gh
+                ;;
+        esac
+    fi
+
+    # lazygit
+    if command_exists lazygit; then
+        success "lazygit already installed"
+    else
+        info "Installing lazygit..."
+        case "$OS" in
+            macos)
+                pkg_install lazygit
+                ;;
+            *)
+                local lg_arch
+                case "$(uname -m)" in
+                    x86_64)       lg_arch="x86_64" ;;
+                    aarch64|arm64) lg_arch="arm64" ;;
+                    *)            warn "Unsupported arch for lazygit: $(uname -m)"; lg_arch="" ;;
+                esac
+                if [[ -n "$lg_arch" ]]; then
+                    local lg_version lg_tmp
+                    lg_version=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" \
+                        | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+                    lg_tmp=$(mktemp -d)
+                    curl -Lo "$lg_tmp/lazygit.tar.gz" \
+                        "https://github.com/jesseduffield/lazygit/releases/download/v${lg_version}/lazygit_${lg_version}_Linux_${lg_arch}.tar.gz"
+                    tar xf "$lg_tmp/lazygit.tar.gz" -C "$lg_tmp" lazygit
+                    $SUDO install "$lg_tmp/lazygit" /usr/local/bin
+                    rm -rf "$lg_tmp"
+                fi
+                ;;
+        esac
     fi
 
     success "Dev tools ready"
@@ -244,7 +495,9 @@ main() {
     detect_os
     install_zsh
     install_ohmyzsh
+    install_zsh_plugins
     install_tools
+    configure_shell_env
     install_claude_code
     install_plugins
     install_skills
