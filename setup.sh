@@ -486,7 +486,17 @@ install_skills() {
     if [[ -d "$TMPDIR/custom-skills" ]]; then
         mkdir -p "$HOME/.agents/skills"
         cp -r "$TMPDIR/custom-skills/"* "$HOME/.agents/skills/"
-        success "Custom skills installed"
+
+        # Symlink each skill into ~/.claude/skills so Claude can find them
+        mkdir -p "$HOME/.claude/skills"
+        for skill_dir in "$HOME/.agents/skills"/*/; do
+            local skill_name
+            skill_name=$(basename "$skill_dir")
+            if [[ ! -e "$HOME/.claude/skills/$skill_name" ]]; then
+                ln -sf "$skill_dir" "$HOME/.claude/skills/$skill_name"
+            fi
+        done
+        success "Custom skills installed and linked"
     else
         warn "No custom-skills directory found in repo"
     fi
