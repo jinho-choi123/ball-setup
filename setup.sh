@@ -180,7 +180,7 @@ configure_shell_env() {
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$HOME/.local/share/fnm:$PATH"
-eval "$(fnm env)"
+eval "$(fnm env --shell zsh)"
 SHELL_EOF
     success "Shell environment configured"
 }
