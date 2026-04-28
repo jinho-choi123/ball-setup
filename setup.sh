@@ -43,6 +43,10 @@ pkg_update_once() {
             $SUDO apt-get update -y
             ;;
         rocky)
+            if ! $SUDO dnf repolist enabled | grep -q epel; then
+                info "Enabling EPEL repository..."
+                $SUDO dnf install -y epel-release
+            fi
             info "Updating package index..."
             $SUDO dnf makecache -y
             ;;
