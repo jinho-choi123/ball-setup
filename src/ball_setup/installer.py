@@ -213,6 +213,24 @@ def install_claude_code(
     subprocess.run(["claude", "login"], stdin=open("/dev/tty"))
 
 
+def install_codex_cli(
+    system: System, console: Console, pkg_mgr: PackageManager
+) -> None:
+    run_cmd(["bun", "install", "-g", "@openai/codex"])
+
+
+def install_kilo_cli(
+    system: System, console: Console, pkg_mgr: PackageManager
+) -> None:
+    run_cmd(["bun", "install", "-g", "@kilocode/cli"])
+
+
+def install_cline_cli(
+    system: System, console: Console, pkg_mgr: PackageManager
+) -> None:
+    run_cmd(["bun", "install", "-g", "cline"])
+
+
 def install_plugins(
     system: System, console: Console, pkg_mgr: PackageManager
 ) -> None:

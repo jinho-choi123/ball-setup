@@ -15,6 +15,9 @@ from .installer import (
     install_fnm,
     install_node_lts,
     install_claude_code,
+    install_codex_cli,
+    install_kilo_cli,
+    install_cline_cli,
     install_plugins,
     install_skills,
 )
@@ -146,6 +149,18 @@ TOOLS: list[Tool] = [
     Tool(
         name="claude-code", category="ai", check_cmd="claude",
         custom_installer=install_claude_code,
+    ),
+    Tool(
+        name="codex-cli", category="ai", check_cmd="codex",
+        custom_installer=install_codex_cli,
+    ),
+    Tool(
+        name="kilo-cli", category="ai", check_cmd="kilo",
+        custom_installer=install_kilo_cli,
+    ),
+    Tool(
+        name="cline-cli", category="ai", check_cmd="cline",
+        custom_installer=install_cline_cli,
     ),
     Tool(
         name="plugins", category="ai",
