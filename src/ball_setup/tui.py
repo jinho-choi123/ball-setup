@@ -71,5 +71,10 @@ def get_all_tools() -> list[Tool]:
 def get_tools_for_categories(categories: list[str]) -> list[Tool]:
     locked = [t for t in TOOLS if CATEGORIES[t.category]["locked"]]
     selected = [t for t in TOOLS if t.category in categories]
-    result = list(dict.fromkeys(locked + selected))  # dedupe preserving order
+    seen: set[str] = set()
+    result: list[Tool] = []
+    for t in locked + selected:
+        if t.name not in seen:
+            seen.add(t.name)
+            result.append(t)
     return result
