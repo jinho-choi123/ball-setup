@@ -1,0 +1,19 @@
+[project]
+name = "ball-setup"
+version = "1.0.0"
+description = "Remote server setup tool with interactive TUI"
+requires-python = ">=3.12"
+dependencies = [
+    "rich>=13.0",
+    "InquirerPy>=0.3.4",
+]
+
+[project.scripts]
+ball-setup = "ball_setup.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = ["pytest>=8.0"]
