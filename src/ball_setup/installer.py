@@ -182,6 +182,25 @@ def install_bun(
         run_cmd(["bash", f.name])
 
 
+def _load_fnm_env() -> None:
+    import os
+    result = subprocess.run(
+        ["fnm", "env", "--shell", "bash"],
+        capture_output=True, text=True, check=True,
+    )
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if not line.startswith("export "):
+            continue
+        assignment = line[len("export "):].rstrip(";")
+        if "=" not in assignment:
+            continue
+        key, _, value = assignment.partition("=")
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+            value = value[1:-1]
+        os.environ[key] = os.path.expandvars(value)
+
+
 def install_fnm(
     system: System, console: Console, pkg_mgr: PackageManager
 ) -> None:
@@ -195,11 +214,14 @@ def install_fnm(
         run_cmd(["bash", f.name, "--skip-shell"])
     import os
     os.environ["PATH"] = os.path.expanduser("~/.local/share/fnm") + ":" + os.environ["PATH"]
+    _load_fnm_env()
 
 
 def install_node_lts(
     system: System, console: Console, pkg_mgr: PackageManager
 ) -> None:
+    if command_exists("fnm"):
+        _load_fnm_env()
     run_cmd(["fnm", "install", "--lts"])
     run_cmd(["fnm", "default", "lts-latest"])
     run_cmd(["fnm", "use", "lts-latest"])
