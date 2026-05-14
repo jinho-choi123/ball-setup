@@ -204,6 +204,8 @@ def _load_fnm_env() -> None:
 def install_fnm(
     system: System, console: Console, pkg_mgr: PackageManager
 ) -> None:
+    import os
+    fnm_dir = os.path.expanduser("~/.local/share/fnm")
     with tempfile.NamedTemporaryFile(suffix=".sh", delete=False) as f:
         result = subprocess.run(
             ["curl", "-fsSL", "https://fnm.vercel.app/install"],
@@ -211,9 +213,9 @@ def install_fnm(
         )
         f.write(result.stdout)
         f.flush()
-        run_cmd(["bash", f.name, "--skip-shell"])
-    import os
-    os.environ["PATH"] = os.path.expanduser("~/.local/share/fnm") + ":" + os.environ["PATH"]
+        env = {**os.environ, "INSTALL_DIR": fnm_dir}
+        subprocess.run(["bash", f.name, "--skip-shell"], check=True, env=env)
+    os.environ["PATH"] = fnm_dir + ":" + os.environ["PATH"]
     _load_fnm_env()
 
     console.print(" [blue]▸[/] Installing Node.js LTS via fnm...")
