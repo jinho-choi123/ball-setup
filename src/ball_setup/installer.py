@@ -216,15 +216,11 @@ def install_fnm(
     os.environ["PATH"] = os.path.expanduser("~/.local/share/fnm") + ":" + os.environ["PATH"]
     _load_fnm_env()
 
-
-def install_node_lts(
-    system: System, console: Console, pkg_mgr: PackageManager
-) -> None:
-    if command_exists("fnm"):
-        _load_fnm_env()
+    console.print(" [blue]▸[/] Installing Node.js LTS via fnm...")
     run_cmd(["fnm", "install", "--lts"])
     run_cmd(["fnm", "default", "lts-latest"])
     run_cmd(["fnm", "use", "lts-latest"])
+    _load_fnm_env()
 
 
 def install_claude_code(

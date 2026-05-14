@@ -13,7 +13,6 @@ from .installer import (
     install_lazygit,
     install_bun,
     install_fnm,
-    install_node_lts,
     install_claude_code,
     install_codex_cli,
     install_kilo_cli,
@@ -140,10 +139,6 @@ TOOLS: list[Tool] = [
     Tool(
         name="fnm", category="runtime", check_cmd="fnm",
         custom_installer=install_fnm,
-    ),
-    Tool(
-        name="node", category="runtime", check_cmd="node",
-        custom_installer=install_node_lts,
     ),
     # ── AI Tools ──
     Tool(
