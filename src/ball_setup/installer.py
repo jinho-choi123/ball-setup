@@ -273,6 +273,9 @@ def install_plugins(
 def install_skills(
     system: System, console: Console, pkg_mgr: PackageManager
 ) -> None:
+    if command_exists("fnm"):
+        _load_fnm_env()
+
     repos = [
         "shubhamsaboo/awesome-llm-apps",
         "juliusbrussee/caveman",
